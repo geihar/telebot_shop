@@ -13,12 +13,12 @@ app = Flask(__name__)
 
 
 # # Empty webserver index, return nothing, just http 200
-# @app.route('/', methods=['GET', 'HEAD'])
-# def index():
-#     return ''
+@app.route('/', methods=['GET', 'HEAD'])
+def index():
+    return None
 
 # Process webhook calls
-@app.route(config.handle_url, methods=['POST'])
+@app.route('/', methods=['POST'])
 def webhook():
     if request.headers.get('content-type') == 'application/json':
         json_string = request.get_data().decode('utf-8')
@@ -205,5 +205,5 @@ if __name__ == '__main__':
     import time
     bot.remove_webhook()
     time.sleep(1)
-    bot.set_webhook(config.webhook_url)
+    bot.set_webhook(config.webhook_url, certificate=open('webhook_cert.pem', 'r'))
     app.run(debug=True)
