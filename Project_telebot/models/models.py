@@ -69,7 +69,7 @@ class Product(Document):
 class User(Document):
     user_id = StringField(max_length=124)
     user_name = StringField(max_length=124)
-    phone = StringField(default='')
+    is_block = BooleanField(default=False)
 
     @property
     def show_cart(self):

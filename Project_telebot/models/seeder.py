@@ -1,7 +1,6 @@
 from mongoengine import connect
 import models
 from random import randint
-import os
 
 connect("web_shop_bot")
 
