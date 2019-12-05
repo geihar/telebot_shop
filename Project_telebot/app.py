@@ -6,13 +6,14 @@ InlineKeyboardButton
 from flask import Flask, request, abort
 import config
 import keyboards
+from cron import cron_sleep_one_day
 from models import models
 from keyboards import ReplyKB
 bot = telebot.TeleBot(config.TOKEN)
 app = Flask(__name__)
 
 
-# # Empty webserver index, return nothing, just http 200
+# Empty webserver index, return nothing, just http 200
 @app.route('/', methods=['GET', 'HEAD'])
 def index():
     return None
@@ -29,6 +30,17 @@ def webhook():
         abort(403)
 
 
+@cron_sleep_one_day
+def get_status():
+    for user in models.User.objects():
+        try:
+            bot.send_chat_action(user.user_id, 'typing')
+            obj = models.User.objects(user_id=user.user_id).get()
+            obj.is_block = False
+        except telebot.apihelper.ApiException:
+            obj = models.User.objects(user_id=user.user_id).get()
+            obj.is_block = True
+
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -36,6 +48,7 @@ def start(message):
 
     keyboard = ReplyKB().generate_kb(*keyboards.beginning_kb.values())
     bot.send_message(message.chat.id, greeting_str, reply_markup=keyboard)
+
 
 @bot.message_handler(func=lambda message: message.text == keyboards.beginning_kb['products'])
 def show_categories(message):
@@ -206,4 +219,5 @@ if __name__ == '__main__':
     bot.remove_webhook()
     time.sleep(1)
     bot.set_webhook(config.webhook_url, certificate=open('webhook_cert.pem', 'r'))
+    get_status()
     app.run(debug=True)

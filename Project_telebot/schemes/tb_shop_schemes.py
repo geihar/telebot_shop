@@ -16,7 +16,7 @@ class CategorySchema(Schema):
     id = fields.String()
     title = fields.String()
     description = fields.String()
-    subcategory = fields.List(fields.Nested(SubCategory))
+    subcategory = fields.List(fields.Nested(SubCategory()))
     parent = fields.Nested('self')
 
 
